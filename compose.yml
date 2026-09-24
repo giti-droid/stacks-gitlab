@@ -1,0 +1,66 @@
+# Stack gitlab_2026_sept — nur der Dienst gitlab.
+#
+# Warum ein eigenes Repo: Portainer kann GitLab nicht aus GitLab deployen
+# (Henne-Ei). Dieses Repo wird per Push-Mirror nach GitHub gespiegelt, und
+# Portainer zieht den Stack von dort. Die Wahrheit ist immer dieses Repo;
+# was auf GitHub anders aussieht, ist ein Fehler oder ein Angriff und wird
+# vom Mirror ueberschrieben. Deploy nur ueber Pulse (Container-Updates ->
+# Starten), nach SHA-Vergleich GitLab == GitHub. GitOps-Polling ist aus.
+#
+# Runner und MCP liegen in gitmi/stacks (docker/gitlab_runner,
+# docker/mcp_gitlab) — sie brauchen GitHub nicht, beim Deploy laeuft GitLab.
+# Hier steht bewusst keine Variable und kein Geheimnis.
+
+networks:
+  vlan219:
+    external: true
+
+volumes:
+  gitlab-config:
+    external: true
+    name: gitlab_2026_april_gitlab-config
+  gitlab-logs:
+    external: true
+    name: gitlab_2026_april_gitlab-logs
+  gitlab-data:
+    external: true
+    name: gitlab_2026_april_gitlab-data
+
+services:
+
+  gitlab:
+    image: gitlab/gitlab-ce:latest@sha256:9b33b45b9f42d176bada85ee5ecb81ddab7e506c435f44cd582206e284b2809c
+    container_name: gitlab_2026_sept
+    restart: unless-stopped
+    hostname: gitlab.scherzinger.cloud
+    # map + proxy_set_headers: Omnibus setzt bei https-external_url ohne
+    # eigenes TLS fest "X-Forwarded-Proto: https" / "X-Forwarded-Ssl: on".
+    # Dann baut GitLab auch fuer Aufrufe ueber die IP https-Umleitungen
+    # (Portainer schneidet .git ab -> https://172.16.219.101/..., Port 443
+    # hoert niemand). Nur Host 172.16.219.101 gilt als http; alles andere,
+    # auch gitlab-mcp ueber gitlab.scherzinger.cloud, bleibt https.
+    # $$ = Compose-Escape fuer nginx-Variablen.
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://gitlab.scherzinger.cloud'
+        nginx['listen_port'] = 80
+        nginx['listen_https'] = false
+        nginx['custom_nginx_config'] = 'map $$host $$gitmi_fwd_proto { default https; 172.16.219.101 http; } map $$host $$gitmi_fwd_ssl { default on; 172.16.219.101 off; }'
+        nginx['proxy_set_headers'] = { 'X-Forwarded-Proto' => '$$gitmi_fwd_proto', 'X-Forwarded-Ssl' => '$$gitmi_fwd_ssl' }
+        gitlab_rails['gitlab_shell_ssh_port'] = 22
+        gitlab_rails['time_zone'] = 'Europe/Zurich'
+      TZ: Europe/Zurich
+    volumes:
+      - gitlab-config:/etc/gitlab
+      - gitlab-logs:/var/log/gitlab
+      - gitlab-data:/var/opt/gitlab
+    shm_size: '256m'
+    networks:
+      vlan219:
+        ipv4_address: 172.16.219.101
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/-/health"]
+      interval: 60s
+      timeout: 10s
+      retries: 5
+      start_period: 180s

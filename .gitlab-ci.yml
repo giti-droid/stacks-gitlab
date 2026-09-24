@@ -1,0 +1,23 @@
+# Stack-Lint wie in gitmi/stacks. tools/stack_lint.py ist eine Kopie von
+# dort (Stand 24.09.2026) — bei Aenderungen an den Regeln beide nachziehen.
+# Eindeutigkeit von container_name/ipv4_address prueft der Lint nur
+# innerhalb eines Repos; 172.16.219.101 / gitlab_2026_sept stehen nur hier.
+
+stages: [test]
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH
+
+lint:stack:
+  stage: test
+  timeout: 5 minutes
+  before_script:
+    - python3 -m venv .venv
+    - . .venv/bin/activate
+    - pip install --no-cache-dir -q pyyaml
+  script:
+    - python3 tools/stack_lint.py compose.yml
+  after_script:
+    - rm -rf .venv

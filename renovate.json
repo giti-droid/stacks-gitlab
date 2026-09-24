@@ -1,0 +1,21 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "GitLab selbst: jedes Update ist eine Freigabe in Pulse. Gemergt wird nie automatisch, deployt wird nur ueber Pulse nach SHA-Vergleich GitLab == GitHub.",
+  "extends": ["config:recommended"],
+  "timezone": "Europe/Zurich",
+  "enabledManagers": ["docker-compose"],
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "GitLab-Updates: Übersicht",
+  "pinDigests": true,
+  "minimumReleaseAge": "3 days",
+  "labels": ["renovate", "gitlab"],
+  "commitMessagePrefix": "update:",
+  "automerge": false,
+  "packageRules": [
+    {
+      "description": "Kein Automerge, egal was Pulse sonst einstellt",
+      "matchPackageNames": ["*"],
+      "automerge": false
+    }
+  ]
+}
