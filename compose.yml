@@ -40,6 +40,19 @@ services:
     # hoert niemand). Nur Host 172.16.219.101 gilt als http; alles andere,
     # auch gitlab-mcp ueber gitlab.scherzinger.cloud, bleibt https.
     # $$ = Compose-Escape fuer nginx-Variablen.
+    #
+    # Speicher (04.10.2026): Die VM docker lief in den OOM — Puma-Worker mit
+    # je ~930 MB, kein Swap, Ballooning laesst effektiv ~7 GiB uebrig. Der
+    # Kernel warf laufend Page-Cache weg, CPU ~110 % ueber 25 min, Dienste
+    # tot, Reboot noetig. Deshalb:
+    # - puma worker_processes 0: Single-Mode, ein Prozess statt Master + n
+    #   Worker (GitLab-Doku "memory-constrained environment"); reicht fuer
+    #   einen Benutzer.
+    # - sidekiq concurrency 10 statt 20.
+    # - prometheus_monitoring aus: Prometheus + Exporter (node, redis,
+    #   postgres, gitlab) laufen sonst mit und werden nirgends abgefragt.
+    # - mem_limit 5g: laeuft GitLab trotzdem voll, trifft der OOM-Killer nur
+    #   diesen Container, nicht den Rest der VM.
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'https://gitlab.scherzinger.cloud'
@@ -49,12 +62,16 @@ services:
         nginx['proxy_set_headers'] = { 'X-Forwarded-Proto' => '$$gitmi_fwd_proto', 'X-Forwarded-Ssl' => '$$gitmi_fwd_ssl' }
         gitlab_rails['gitlab_shell_ssh_port'] = 22
         gitlab_rails['time_zone'] = 'Europe/Zurich'
+        puma['worker_processes'] = 0
+        sidekiq['concurrency'] = 10
+        prometheus_monitoring['enable'] = false
       TZ: Europe/Zurich
     volumes:
       - gitlab-config:/etc/gitlab
       - gitlab-logs:/var/log/gitlab
       - gitlab-data:/var/opt/gitlab
     shm_size: '256m'
+    mem_limit: 5g
     networks:
       vlan219:
         ipv4_address: 172.16.219.101
