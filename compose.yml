@@ -72,6 +72,15 @@ services:
       - gitlab-data:/var/opt/gitlab
     shm_size: '256m'
     mem_limit: 5g
+    # Docker-Log (18.10.2026): Omnibus spiegelt per tail -F alle Logs aus
+    # /var/log/gitlab auf stdout (inkl. Runner-Polling alle 3 s). Ohne Limit
+    # wuchs das json-file-Log auf 16 GB. Die Originale liegen rotiert im
+    # Volume gitlab-logs; das Docker-Log ist nur fuer `docker logs` da.
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
     networks:
       vlan219:
         ipv4_address: 172.16.219.101
