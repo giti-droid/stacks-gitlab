@@ -74,13 +74,16 @@ services:
     mem_limit: 5g
     # Docker-Log (18.10.2026): Omnibus spiegelt per tail -F alle Logs aus
     # /var/log/gitlab auf stdout (inkl. Runner-Polling alle 3 s). Ohne Limit
-    # wuchs das json-file-Log auf 16 GB. Die Originale liegen rotiert im
-    # Volume gitlab-logs; das Docker-Log ist nur fuer `docker logs` da.
+    # wuchs das json-file-Log auf 16 GB. GitLab braucht das Docker-Log nicht;
+    # die Originale liegen rotiert im Volume gitlab-logs (bei Bedarf:
+    # docker exec gitlab_2026_sept gitlab-ctl tail [dienst]).
+    # Bewusst nicht driver none: Pulse holt beim Rollback eines Updates
+    # `docker logs --tail 12` als Diagnose — dafuer reichen 5 MB.
     logging:
-      driver: json-file
+      driver: local
       options:
-        max-size: "50m"
-        max-file: "3"
+        max-size: "5m"
+        max-file: "1"
     networks:
       vlan219:
         ipv4_address: 172.16.219.101
