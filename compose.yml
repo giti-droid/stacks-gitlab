@@ -29,7 +29,7 @@ volumes:
 services:
 
   gitlab:
-    image: gitlab/gitlab-ce:latest@sha256:9b33b45b9f42d176bada85ee5ecb81ddab7e506c435f44cd582206e284b2809c
+    image: gitlab/gitlab-ce:latest@sha256:bb79dc86267c557fd11e7feb0cd9dd506dd02e991ecdd6cae11ca7d7e5d36fc3
     container_name: gitlab_2026_sept
     restart: unless-stopped
     hostname: gitlab.scherzinger.cloud
