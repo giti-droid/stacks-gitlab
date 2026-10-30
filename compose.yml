@@ -84,6 +84,11 @@ services:
       options:
         max-size: "5m"
         max-file: "1"
+        # Der Treiber `local` komprimiert sonst rotierte Dateien — mit nur
+        # einer Datei verweigert Docker dann den Start («compression cannot
+        # be enabled when max file count is 1», Container bleibt «created»).
+        # Am 30.10.2026 lag GitLab deshalb nach einem Redeploy still.
+        compress: "false"
     networks:
       vlan219:
         ipv4_address: 172.16.219.101
