@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Stack-Lint: die Regeln, die ein Compose in diesem Repo einhalten muss.
 
-Kopie aus gitmi/stacks (Stand 24.09.2026). Bei Aenderungen an den Regeln
+Kopie aus mi/stacks (Stand 24.09.2026). Bei Aenderungen an den Regeln
 beide Repos nachziehen.
 
 Laeuft bei jedem Push und Merge Request (siehe .gitlab-ci.yml) und ist die
