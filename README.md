@@ -22,8 +22,8 @@ dafuer laufen muss.
 
 ## Nicht hier
 
-- Runner: `gitmi/stacks` -> `docker/gitlab_runner`
-- MCP: `gitmi/stacks` -> `docker/mcp_gitlab` (einzige Variable
+- Runner: `mi/stacks` -> `docker/gitlab_runner`
+- MCP: `mi/stacks` -> `docker/mcp_gitlab` (einzige Variable
   `GITLAB_OAUTH_APP_ID`)
 
 ## Portainer
