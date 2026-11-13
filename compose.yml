@@ -7,7 +7,7 @@
 # vom Mirror ueberschrieben. Deploy nur ueber Pulse (Container-Updates ->
 # Starten), nach SHA-Vergleich GitLab == GitHub. GitOps-Polling ist aus.
 #
-# Runner und MCP liegen in gitmi/stacks (docker/gitlab_runner,
+# Runner und MCP liegen in mi/stacks (docker/gitlab_runner,
 # docker/mcp_gitlab) — sie brauchen GitHub nicht, beim Deploy laeuft GitLab.
 # Hier steht bewusst keine Variable und kein Geheimnis.
 
