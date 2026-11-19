@@ -1,5 +1,5 @@
 # Stack-Lint wie in mi/stacks. tools/stack_lint.py ist eine Kopie von
-# dort (Stand 24.09.2026) — bei Aenderungen an den Regeln beide nachziehen.
+# dort (Stand 19.11.2026) — bei Aenderungen an den Regeln beide nachziehen.
 # Eindeutigkeit von container_name/ipv4_address prueft der Lint nur
 # innerhalb eines Repos; 172.16.219.101 / gitlab_2026_sept stehen nur hier.
 
